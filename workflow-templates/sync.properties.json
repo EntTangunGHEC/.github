@@ -1,0 +1,4 @@
+{
+    "name": "WingFTP sync Workflow",
+    "description": "Pull Request에서 저장소의 Default 브랜치의 파일 및 폴더들을 WingFTP에 동기화하는 스크립트입니다."
+}

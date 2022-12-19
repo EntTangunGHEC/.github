@@ -1,0 +1,4 @@
+{
+    "name": "WingFTP upload Workflow",
+    "description": "Pull Request에서 Changed Files를 WingFTP에 업로드하는 스크립트입니다."
+}

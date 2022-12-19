@@ -1,0 +1,32 @@
+name: Repository Sync to WingFTP
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "master" branch
+  pull_request:
+    branches: [ $default-branch ]
+    types: [closed]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  Check-if-PR-merged:
+    runs-on: ["self-hosted", "Windows"]
+    steps:
+      - name: If PR is 'Closed' without being merged
+        if: ${{github.event.pull_request.merged != true}}
+        run: echo "::warning::The PR isn't merged, but just closed. Please merge the PR to proceed to deploy"
+  
+  Changed_files_in_pr:
+    needs: Check-if-PR-merged
+    if: ${{ github.event.pull_request.merged }}
+    runs-on: ["self-hosted", "Windows"]
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: Fetch API Data & Sync to WingFTP
+        run: |
+          $webData = gh api -H "Accept: application/vnd.github+json" --hostname git.krs.co.kr /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{ github.event.number }}/files --jq '.[].filename'
+          $merged_by = gh api -H "Accept: application/vnd.github+json" --hostname git.krs.co.kr /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{ github.event.number }} --jq '.merged_by.login'
+          winscp.com /command "open sftp://$merged_by@103.12.248.203:223/ -privatekey=`"`"C:\actions_runner\$merged_by.ppk`"`"" "synchronize remote $pwd /K_DRV/${{ github.event.repository.name }}"

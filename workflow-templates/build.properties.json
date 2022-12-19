@@ -1,0 +1,4 @@
+{
+    "name": "Build Project",
+    "description": "Pull Request시 프로젝트가 빌드되는 스크립트입니다."
+}
